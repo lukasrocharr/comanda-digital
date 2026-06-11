@@ -1,0 +1,32 @@
+steps:
+# Build the container image and push to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build','-t','gcr.io/$PROJECT_ID/comanda-digital','$BUILD_DIR']
+
+# Push image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push','gcr.io/$PROJECT_ID/comanda-digital']
+
+# Deploy to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+    - 'run'
+    - 'deploy'
+    - 'comanda-digital'
+    - '--image'
+    - 'gcr.io/$PROJECT_ID/comanda-digital'
+    - '--region'
+    - '${_REGION}'
+    - '--platform'
+    - 'managed'
+    - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/comanda-digital'
+
+substitutions:
+  _REGION: 'us-central1'
+
+options:
+  machineType: 'E2_HIGHCPU_8'
